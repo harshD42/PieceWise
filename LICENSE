@@ -1,0 +1,94 @@
+Harsh Non-Commercial Attribution License (HNCAL) v1.0
+
+Copyright (c) 2026 Harsh Dwivedi. All rights reserved.
+
+Permission is hereby granted to any person obtaining a copy of this software
+and associated documentation files (the "Software") to use, copy, modify,
+merge, publish, and distribute the Software for non-commercial purposes only,
+subject to the following conditions:
+
+────────────────────────────────────────────────────────────────────────────────
+1. ATTRIBUTION REQUIREMENT
+────────────────────────────────────────────────────────────────────────────────
+
+All copies, derivative works, public uses, deployments, or publications
+involving this Software must:
+
+  a) Clearly credit "Harsh Dwivedi" as the original author of PieceWise.
+  b) Include a visible link to the original repository:
+     https://github.com/harshD42/PieceWise
+  c) Retain this license notice in full in all copies or substantial
+     portions of the Software.
+  d) In any academic publication, research paper, or technical report that
+     uses or builds upon this Software, cite PieceWise and Harsh Dwivedi
+     in the references section.
+
+────────────────────────────────────────────────────────────────────────────────
+2. NON-COMMERCIAL RESTRICTION
+────────────────────────────────────────────────────────────────────────────────
+
+The Software may not be used for commercial purposes without prior written
+permission from the copyright holder.
+
+"Commercial purposes" includes, but is not limited to:
+
+  a) Selling the Software or any derivative work.
+  b) Integrating the Software into a paid product, SaaS platform, or
+     subscription service.
+  c) Offering the Software as part of any monetized or revenue-generating
+     platform or application.
+  d) Using the Software within a business or organizational environment
+     for any activity that directly or indirectly generates revenue.
+  e) Licensing, sublicensing, or reselling access to the Software or
+     its outputs.
+
+────────────────────────────────────────────────────────────────────────────────
+3. COMMERCIAL LICENSING
+────────────────────────────────────────────────────────────────────────────────
+
+Commercial use of this Software requires a separate written commercial
+license agreement with the copyright holder.
+
+For commercial licensing inquiries, contact: [harsh.dwivedi42@gmail.com]
+
+────────────────────────────────────────────────────────────────────────────────
+4. CONTRIBUTOR TERMS
+────────────────────────────────────────────────────────────────────────────────
+
+By submitting any contribution (including but not limited to pull requests,
+patches, issues with proposed fixes, or documentation changes) to this
+project, you agree that:
+
+  a) Your contribution is submitted under the same terms as this license.
+  b) You grant the copyright holder (Harsh Dwivedi) a perpetual, irrevocable, worldwide,
+     royalty-free right to use, modify, sublicense, and relicense your
+     contribution under any license terms, including commercial licenses,
+     without further compensation or consent required.
+  c) You represent that you have the legal right to make this grant and
+     that your contribution does not infringe any third-party rights.
+
+────────────────────────────────────────────────────────────────────────────────
+5. NO WARRANTY
+────────────────────────────────────────────────────────────────────────────────
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. IN NO EVENT SHALL
+THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF,
+OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+────────────────────────────────────────────────────────────────────────────────
+6. GOVERNING LAW
+────────────────────────────────────────────────────────────────────────────────
+
+This license shall be governed by and construed in accordance with the laws
+of [USA / Massachussets], without regard to conflict of law principles.
+Any disputes arising under this license shall be subject to the exclusive
+jurisdiction of the courts located in [USA / Massachussets / Boston].
+
+────────────────────────────────────────────────────────────────────────────────
+
+By using, copying, modifying, or distributing this Software, you agree to
+be bound by the terms of this license.
