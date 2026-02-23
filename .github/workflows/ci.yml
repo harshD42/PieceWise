@@ -49,7 +49,11 @@ jobs:
           ENABLE_PCA_REDUCTION: "false"
           LOG_LEVEL: WARNING
         run: |
-          pytest tests/unit/ -v --tb=short
+          if [ -d "tests/unit" ] && [ "$(ls -A tests/unit)" ]; then
+            pytest tests/unit/ -v --tb=short
+          else
+            echo "⏭ No unit tests yet — skipping."
+          fi
 
       - name: Run integration tests (mocked models)
         working-directory: backend
@@ -58,7 +62,11 @@ jobs:
           ENABLE_PCA_REDUCTION: "false"
           LOG_LEVEL: WARNING
         run: |
-          pytest tests/integration/ -v --tb=short -m "not requires_gpu"
+          if [ -d "tests/integration" ] && [ "$(ls -A tests/integration)" ]; then
+            pytest tests/integration/ -v --tb=short -m "not requires_gpu"
+          else
+            echo "⏭ No integration tests yet — skipping."
+          fi
 
   frontend-build:
     name: Frontend Build
@@ -68,7 +76,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Check if frontend exists
+        id: frontend-check
+        run: |
+          if [ -f "frontend/package.json" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "⏭ Frontend not yet scaffolded — skipping build."
+          fi
+
       - name: Set up Node 20
+        if: steps.frontend-check.outputs.exists == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: "20"
@@ -76,13 +95,16 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
+        if: steps.frontend-check.outputs.exists == 'true'
         working-directory: frontend
         run: npm ci
 
       - name: Type check
+        if: steps.frontend-check.outputs.exists == 'true'
         working-directory: frontend
         run: npm run type-check
 
       - name: Build
+        if: steps.frontend-check.outputs.exists == 'true'
         working-directory: frontend
         run: npm run build
