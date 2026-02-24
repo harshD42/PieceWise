@@ -272,10 +272,48 @@ def _sequence(job_id: str, piece_matches, grid_shape):
 
 
 def _render(job_id, ref_img, pieces_img, piece_crops, piece_matches, assembly_steps):
-    """Phase 8 — rendering module."""
-    raise NotImplementedError(
-        "Rendering module not yet implemented (Phase 8)."
+    """Phase 8 — full rendering pipeline."""
+    from app.modules.rendering.reference_overlay import render_reference_overlay
+    from app.modules.rendering.pieces_overlay import render_pieces_overlay
+    from app.modules.rendering.piece_crop_saver import save_piece_crops
+    from app.modules.rendering.step_card_generator import generate_step_cards
+    from app.modules.rendering.manifest_builder import (
+        build_manifest, write_manifest, build_output_bundle
     )
+
+    # Recover grid shape from steps
+    if assembly_steps:
+        rows = max(s.grid_pos[0] for s in assembly_steps) + 1
+        cols = max(s.grid_pos[1] for s in assembly_steps) + 1
+        grid_shape = (rows, cols)
+    else:
+        grid_shape = (1, 1)
+
+    # Ensure output dirs exist
+    from app.utils.storage import init_job_dirs
+    init_job_dirs(job_id)
+
+    # Reference overlay
+    render_reference_overlay(ref_img, assembly_steps, grid_shape, job_id)
+
+    # Pieces overlay
+    render_pieces_overlay(pieces_img, piece_crops, assembly_steps, job_id)
+
+    # Save piece crop thumbnails
+    crop_urls = save_piece_crops(piece_crops, assembly_steps, job_id)
+
+    # Step cards
+    step_card_urls = generate_step_cards(
+        assembly_steps, piece_crops, ref_img, grid_shape, job_id
+    )
+
+    # Manifest
+    manifest = build_manifest(
+        job_id, assembly_steps, grid_shape, crop_urls, step_card_urls
+    )
+    write_manifest(manifest, job_id)
+
+    return build_output_bundle(job_id, manifest, step_card_urls)
 
 
 # ─── Correction Re-run ───────────────────────────────────────────────────────
@@ -288,9 +326,9 @@ async def rerun_from_correction(
 ) -> None:
     """
     Re-run sequencing and rendering after a human-in-the-loop correction.
-    Loads existing match results from cache, applies the correction,
-    then re-runs stages 6 (adjacency), 7 (sequencing), and 8 (rendering).
-    Full segmentation and matching are NOT re-run — too expensive.
+    Loads the existing manifest, applies the correction to the match list,
+    then re-runs stages 7 (sequencing) and 8 (rendering).
+    Full segmentation and matching are NOT re-run.
     """
     structlog.contextvars.bind_contextvars(job_id=job_id, correction_piece=piece_id)
     log.info(
@@ -300,11 +338,68 @@ async def rerun_from_correction(
     )
 
     try:
-        # Stub — Phase 8 will wire this fully
-        raise NotImplementedError(
-            "Correction re-run not yet fully implemented. "
-            "Complete Phase 8 (rendering) first."
+        import json
+        from app.utils.storage import solution_manifest_path
+        from app.models.piece import PieceMatch
+        from app.modules.rendering.manifest_builder import (
+            build_manifest, write_manifest, build_output_bundle
         )
+
+        manifest_path = solution_manifest_path(job_id)
+        if not manifest_path.exists():
+            raise FileNotFoundError(
+                f"solution.json not found for job {job_id}. "
+                "Cannot apply correction before initial solve completes."
+            )
+
+        # Load existing manifest to recover match list
+        manifest_data = json.loads(manifest_path.read_text())
+        steps_data = manifest_data.get("steps", [])
+
+        # Rebuild match list from manifest, applying the correction
+        matches = []
+        for s in steps_data:
+            gpos = tuple(s["grid_pos"])
+            if s["piece_id"] == piece_id:
+                gpos = corrected_grid_pos   # apply correction
+            matches.append(PieceMatch(
+                piece_id=s["piece_id"],
+                grid_pos=gpos,
+                rotation_deg=s["rotation_deg"],
+                composite_confidence=s["composite_confidence"],
+                adjacency_score=s.get("adjacency_score", 0.5),
+                curvature_complement_score=s.get("curvature_complement_score", 0.5),
+                flagged=s.get("flagged", False),
+            ))
+
+        grid_shape_list = manifest_data.get("grid_shape", [1, 1])
+        grid_shape = tuple(grid_shape_list)
+
+        # Re-run sequencing
+        store.update_job(job_id, stage="sequencing_correction", progress=88)
+        assembly_steps = _sequence(job_id, matches, grid_shape)
+
+        # Re-run rendering (no images available in correction path —
+        # load from uploads)
+        from app.utils.storage import reference_upload_path, pieces_upload_path
+        from app.utils.image_utils import load_image_bgr
+
+        ref_img = load_image_bgr(reference_upload_path(job_id))
+        pieces_img = load_image_bgr(pieces_upload_path(job_id))
+
+        store.update_job(job_id, stage="rendering_correction", progress=94)
+        output_bundle = _render(
+            job_id, ref_img, pieces_img, [], matches, assembly_steps
+        )
+
+        store.update_job(
+            job_id,
+            status=__import__("app.models.job", fromlist=["JobStatus"]).JobStatus.DONE,
+            progress=100,
+            result=output_bundle,
+        )
+        log.info("correction_rerun_complete", job_id=job_id)
+
     except Exception as exc:
         store.fail_job(job_id, f"Correction failed: {exc}")
         log.error("correction_rerun_failed", error=str(exc))

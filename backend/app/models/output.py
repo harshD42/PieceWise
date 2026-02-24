@@ -10,7 +10,7 @@ artifact consumed by the frontend solution viewer.
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel, Field
 
@@ -56,11 +56,11 @@ class SolutionManifest(BaseModel):
 
     steps: list[StepManifestEntry] = Field(default_factory=list)
 
-    asset_urls: dict[str, str] = Field(
+    asset_urls: dict[str, Any] = Field(
         default_factory=dict,
         description=(
-            "Named asset URLs: overlay_reference, overlay_pieces, "
-            "solution_manifest, step_cards array"
+            "Named asset URLs: overlay_reference (str), overlay_pieces (str), "
+            "solution_manifest (str), step_cards (list[str])"
         ),
     )
 
