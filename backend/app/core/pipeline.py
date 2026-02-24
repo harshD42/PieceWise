@@ -259,9 +259,16 @@ def _refine_adjacency(job_id: str, piece_matches, piece_crops):
 
 def _sequence(job_id: str, piece_matches, grid_shape):
     """Phase 7 — sequencing module."""
-    raise NotImplementedError(
-        "Sequencing module not yet implemented (Phase 7)."
-    )
+    from app.modules.sequencing.piece_classifier import classify_and_validate
+    from app.modules.sequencing.bfs_assembler import bfs_order
+    from app.modules.sequencing.step_generator import generate_steps
+
+    # Phase 7 has no PieceCrop list in this call — pass empty for classifier
+    # The classifier still works: without curvature profiles it skips
+    # cross-validation and classifies purely from grid_pos (correct behaviour)
+    classifications = classify_and_validate(piece_matches, [], grid_shape)
+    ordered = bfs_order(piece_matches, classifications, grid_shape)
+    return generate_steps(ordered, classifications)
 
 
 def _render(job_id, ref_img, pieces_img, piece_crops, piece_matches, assembly_steps):
