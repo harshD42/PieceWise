@@ -1,0 +1,34 @@
+.app {
+  min-height: 100vh;
+  background: #020817;
+  color: #e2e8f0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.errorScreen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 1rem;
+  text-align: center;
+  padding: 2rem;
+}
+
+.errorIcon { font-size: 3rem; margin: 0; }
+.errorScreen h2 { font-size: 1.4rem; margin: 0; color: #e2e8f0; }
+.errorMsg { color: #94a3b8; max-width: 400px; font-size: 0.9rem; margin: 0; }
+
+.retryBtn {
+  padding: 0.6rem 1.5rem;
+  background: linear-gradient(135deg, #7c3aed, #0ea5e9);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.retryBtn:hover { opacity: 0.85; }

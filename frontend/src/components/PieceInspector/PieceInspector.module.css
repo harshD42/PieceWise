@@ -1,0 +1,144 @@
+.panel {
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #1e293b;
+}
+
+.panelTitle { font-weight: 700; font-size: 0.9rem; color: #e2e8f0; }
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: #475569;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  transition: color 0.2s;
+}
+.closeBtn:hover { color: #e2e8f0; }
+
+.cropImg {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+  background: #1e293b;
+  display: block;
+}
+
+.meta {
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  border-bottom: 1px solid #1e293b;
+}
+
+.metaRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+}
+.metaLabel { color: #475569; }
+.metaVal   { color: #94a3b8; font-weight: 600; }
+
+/* ── Score bars ─────────────────────────────────────────────────────────── */
+.scores {
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-bottom: 1px solid #1e293b;
+}
+
+.scoreRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+.scoreLabel {
+  width: 110px;
+  color: #475569;
+  flex-shrink: 0;
+}
+.scoreBar {
+  flex: 1;
+  height: 5px;
+  background: #1e293b;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.scoreBarFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+.scoreVal {
+  width: 32px;
+  text-align: right;
+  font-weight: 600;
+}
+
+/* ── Candidates (human-in-the-loop) ─────────────────────────────────────── */
+.candidates {
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.candidatesTitle {
+  font-size: 0.75rem;
+  color: #ea580c;
+  margin: 0 0 0.25rem;
+  font-weight: 600;
+}
+
+.candidate {
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  transition: border-color 0.2s;
+}
+.candidate:hover { border-color: #7c3aed; }
+
+.candidateHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+.candidateRank  { font-weight: 700; color: #e2e8f0; }
+.candidatePos   { color: #64748b; }
+.candidateScore { color: #a78bfa; font-weight: 600; }
+
+.correctBtn {
+  padding: 0.3rem;
+  background: #7c3aed22;
+  border: 1px solid #7c3aed55;
+  border-radius: 6px;
+  color: #a78bfa;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 600;
+  transition: background 0.2s, border-color 0.2s;
+}
+.correctBtn:hover {
+  background: #7c3aed44;
+  border-color: #a78bfa;
+}
