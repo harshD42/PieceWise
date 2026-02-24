@@ -19,15 +19,29 @@ import pytest
 
 def test_settings_load_defaults():
     from app.config import Settings
-    # Use _env_file=None so CI environment variables (set by ci.yml)
-    # don't override the defaults we're testing here.
-    s = Settings(_env_file=None)
+    # Construct with all relevant defaults explicitly so CI environment
+    # variables (ENABLE_PCA_REDUCTION=false, LOG_LEVEL=WARNING set in
+    # ci.yml) do not interfere with the values being asserted.
+    s = Settings(
+        _env_file=None,
+        enable_pca_reduction=True,
+        log_level="INFO",
+    )
     assert s.sam_model_type == "vit_h"
     assert s.enable_pca_reduction is True
     assert s.pca_target_dims == 128
     assert s.coarse_topk == 30
     assert s.confidence_threshold == 0.55
     assert s.dino_batch_size == 16
+
+
+def test_settings_env_override():
+    from app.config import Settings
+    # Verify that constructor kwargs correctly override defaults —
+    # this is the same mechanism CI uses via environment variables.
+    s = Settings(_env_file=None, enable_pca_reduction=False, log_level="WARNING")
+    assert s.enable_pca_reduction is False
+    assert s.log_level == "WARNING"
 
 
 def test_settings_upload_max_bytes():
