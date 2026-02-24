@@ -48,13 +48,19 @@ async def lifespan(app: FastAPI):
     # Initialise job store (memory or Redis)
     init_job_store()
 
-    # Model warm-up stubs — will be replaced in Phase 3 and Phase 4
-    # with actual SAM and DINOv2 loading calls
-    log.info(
-        "model_warmup_skipped",
-        reason="Phase 3/4 not yet implemented",
-        note="SAM and DINOv2 will be loaded here once implemented",
-    )
+    # Model warm-up — SAM loaded here, DINOv2 loaded in Phase 4
+    try:
+        from app.modules.segmentation.sam_loader import init_sam
+        init_sam()
+        log.info("sam_warmup_complete")
+    except FileNotFoundError as e:
+        log.warning(
+            "sam_checkpoint_missing",
+            error=str(e),
+            advice="Run python scripts/download_models.py to download model weights.",
+        )
+    except Exception as e:
+        log.warning("sam_warmup_failed", error=str(e))
 
     log.info("piecewise_ready")
     yield

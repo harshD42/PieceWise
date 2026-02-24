@@ -167,11 +167,33 @@ def _preprocess(job_id: str, ref_path: Path, pieces_path: Path):
 
 
 def _segment_pieces(job_id: str, pieces_img):
-    """Phase 3 — segmentation module."""
-    raise NotImplementedError(
-        "Segmentation module not yet implemented (Phase 3). "
-        "Run download_models.py and implement Phase 3 before executing the pipeline."
-    )
+    """Phase 3 — full segmentation pipeline."""
+    from app.modules.segmentation.mask_generator import generate_masks
+    from app.modules.segmentation.mask_filter import filter_masks
+    from app.modules.segmentation.segmentation_refiner import refine_masks
+    from app.modules.segmentation.piece_extractor import extract_pieces
+    from app.modules.segmentation.contour_analyzer import analyze_contours
+    from app.config import get_settings
+
+    settings = get_settings()
+    h, w = pieces_img.shape[:2]
+
+    # Stage 1+2: CC pre-filter + SAM mask generation
+    masks, _ = generate_masks(pieces_img)
+
+    # Stage 3: Filter invalid masks
+    masks = filter_masks(masks, (h, w))
+
+    # Stage 4: Separate merged/touching pieces
+    masks = refine_masks(masks, (h, w), settings.sam_min_mask_area)
+
+    # Stage 5: Extract PieceCrop objects
+    pieces = extract_pieces(masks, pieces_img)
+
+    # Stage 6: Curvature encoding + flat_side_count
+    pieces = analyze_contours(pieces)
+
+    return pieces
 
 
 def _embed_reference(job_id: str, ref_img):

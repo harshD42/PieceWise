@@ -26,12 +26,12 @@ jobs:
         working-directory: backend
         run: |
           pip install --upgrade pip
-          # Install CPU-only torch first (no GPU in CI)
+          # Install CPU-only torch first (no GPU in CI, torch omitted from requirements.txt)
           pip install torch==2.3.0 torchvision==0.18.0 --index-url https://download.pytorch.org/whl/cpu
           # Install SAM from source
           pip install git+https://github.com/facebookresearch/segment-anything.git
-          # Install remaining requirements (skip torch lines already installed)
-          grep -v "^torch" requirements.txt | grep -v "^torchvision" | pip install -r /dev/stdin
+          # Install remaining requirements
+          pip install -r requirements.txt
 
       - name: Create storage structure
         working-directory: backend
