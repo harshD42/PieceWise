@@ -66,6 +66,14 @@ async def _run(job_id: str, store: JobStore) -> None:
     ref_path = reference_upload_path(job_id)
     pieces_path = pieces_upload_path(job_id)
 
+    # Shared PCA reducer — fitted on reference, applied to pieces
+    from app.modules.feature_extraction.pca_reducer import make_reducer
+    from app.modules.feature_extraction.embedding_store import EmbeddingStore
+    from app.utils.storage import pca_model_cache_path
+
+    reducer = make_reducer()
+    emb_store = EmbeddingStore()
+
     # ── Stage 1: Preprocessing ───────────────────────────────────────────────
     store.advance_stage(job_id, JobStage.PREPROCESSING)
     log.info("stage_start", stage="preprocessing")
@@ -81,8 +89,11 @@ async def _run(job_id: str, store: JobStore) -> None:
 
     piece_crops, patch_token_map = await asyncio.gather(
         asyncio.to_thread(_segment_pieces, job_id, pieces_img),
-        asyncio.to_thread(_embed_reference, job_id, ref_img),
+        asyncio.to_thread(_embed_reference, job_id, ref_img, reducer),
     )
+
+    emb_store.set_patch_token_map(patch_token_map)
+    reducer.save(pca_model_cache_path(job_id))
 
     log.info(
         "stage_complete",
@@ -95,8 +106,9 @@ async def _run(job_id: str, store: JobStore) -> None:
     log.info("stage_start", stage="piece_embedding")
 
     piece_embeddings = await asyncio.to_thread(
-        _embed_pieces, job_id, piece_crops
+        _embed_pieces, job_id, piece_crops, reducer
     )
+    emb_store.set_piece_embeddings(piece_embeddings)
     log.info("stage_complete", stage="piece_embedding")
 
     # ── Stage 4: Matching ────────────────────────────────────────────────────
@@ -104,7 +116,7 @@ async def _run(job_id: str, store: JobStore) -> None:
     log.info("stage_start", stage="matching")
 
     piece_matches = await asyncio.to_thread(
-        _match_pieces, job_id, piece_embeddings, patch_token_map, piece_crops
+        _match_pieces, job_id, emb_store, piece_crops
     )
     log.info(
         "stage_complete",
@@ -196,21 +208,27 @@ def _segment_pieces(job_id: str, pieces_img):
     return pieces
 
 
-def _embed_reference(job_id: str, ref_img):
+def _embed_reference(job_id: str, ref_img, reducer):
     """Phase 4 — DINOv2 reference spatial token extraction."""
-    raise NotImplementedError(
-        "Feature extraction module not yet implemented (Phase 4)."
-    )
+    from app.modules.feature_extraction.patch_generator import extract_reference_tokens
+    from app.modules.preprocessing.grid_estimator import estimate_grid_shape
+
+    # Grid shape will be refined after segmentation in production
+    # For now estimate from a nominal 1000-piece 4:3 puzzle
+    # Phase 5 will receive the real piece count from segmentation
+    h, w = ref_img.shape[:2]
+    grid_shape = estimate_grid_shape(1000, (h, w))
+
+    return extract_reference_tokens(ref_img, grid_shape, reducer, job_id)
 
 
-def _embed_pieces(job_id: str, piece_crops, ):
+def _embed_pieces(job_id: str, piece_crops, reducer):
     """Phase 4 — DINOv2 piece embedding."""
-    raise NotImplementedError(
-        "Feature extraction module not yet implemented (Phase 4)."
-    )
+    from app.modules.feature_extraction.piece_embedder import embed_pieces
+    return embed_pieces(piece_crops, reducer, job_id)
 
 
-def _match_pieces(job_id: str, piece_embeddings, patch_token_map, piece_crops):
+def _match_pieces(job_id: str, emb_store, piece_crops):
     """Phase 5 — matching engine."""
     raise NotImplementedError(
         "Matching engine not yet implemented (Phase 5)."
