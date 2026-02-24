@@ -19,7 +19,9 @@ import pytest
 
 def test_settings_load_defaults():
     from app.config import Settings
-    s = Settings()
+    # Use _env_file=None so CI environment variables (set by ci.yml)
+    # don't override the defaults we're testing here.
+    s = Settings(_env_file=None)
     assert s.sam_model_type == "vit_h"
     assert s.enable_pca_reduction is True
     assert s.pca_target_dims == 128
