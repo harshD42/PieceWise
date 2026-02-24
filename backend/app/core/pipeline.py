@@ -243,9 +243,18 @@ def _match_pieces(job_id: str, emb_store, piece_crops):
 
 def _refine_adjacency(job_id: str, piece_matches, piece_crops):
     """Phase 6 — adjacency refiner."""
-    raise NotImplementedError(
-        "Adjacency refiner not yet implemented (Phase 6)."
-    )
+    from app.modules.adjacency.refiner import refine_adjacency
+    from app.modules.feature_extraction.embedding_store import EmbeddingStore
+
+    # Recover grid shape from matches
+    if not piece_matches:
+        return piece_matches
+
+    rows = max(m.grid_pos[0] for m in piece_matches) + 1
+    cols = max(m.grid_pos[1] for m in piece_matches) + 1
+    grid_shape = (rows, cols)
+
+    return refine_adjacency(piece_matches, piece_crops, grid_shape)
 
 
 def _sequence(job_id: str, piece_matches, grid_shape):
