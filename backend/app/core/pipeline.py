@@ -229,10 +229,16 @@ def _embed_pieces(job_id: str, piece_crops, reducer):
 
 
 def _match_pieces(job_id: str, emb_store, piece_crops):
-    """Phase 5 — matching engine."""
-    raise NotImplementedError(
-        "Matching engine not yet implemented (Phase 5)."
-    )
+    """Phase 5 — full coarse-to-fine matching engine."""
+    from app.modules.matching.matcher import match_pieces
+    from app.modules.preprocessing.grid_estimator import estimate_grid_shape
+
+    # Derive grid shape from piece count and reference image dimensions
+    n_pieces = len(piece_crops)
+    token_map = emb_store.get_patch_token_map()
+    grid_shape = token_map.grid_shape
+
+    return match_pieces(emb_store, piece_crops, grid_shape)
 
 
 def _refine_adjacency(job_id: str, piece_matches, piece_crops):
