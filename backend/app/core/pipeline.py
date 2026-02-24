@@ -157,14 +157,13 @@ async def _run(job_id: str, store: JobStore) -> None:
 # runs fail loudly rather than silently producing incorrect results.
 
 def _preprocess(job_id: str, ref_path: Path, pieces_path: Path):
-    """Phase 2 — preprocessing.validator + normalizer + histogram_matcher."""
-    from app.modules.preprocessing.validator import validate_image_file
+    """Phase 2 — full preprocessing: validate + normalize + histogram match."""
+    from app.modules.preprocessing.validator import validate_image_pair
     from app.modules.preprocessing.normalizer import normalize_image_pair
 
-    validate_image_file(ref_path)
-    validate_image_file(pieces_path)
-    ref_img, pieces_img, _scales = normalize_image_pair(ref_path, pieces_path)
-    return ref_img, pieces_img
+    validate_image_pair(ref_path, pieces_path)
+    normalised = normalize_image_pair(ref_path, pieces_path)
+    return normalised.ref_img, normalised.pieces_img
 
 
 def _segment_pieces(job_id: str, pieces_img):
